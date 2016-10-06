@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<head>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div id="mainPopup">
+    <div class="tabs">
+      <ul class="tabs__list">
+        <li><a>From Now</a></li>
+        <li><a>Specific Date</a></li>
+      </ul>
+      <div class="tabs__tab-content">
+        <h2>In the future</h2>
+        <input class="wide" id="when" name="when" type="hidden" placeholder="In a week">
+        <input id="stepDown" type="button" value="-">
+        <input class="num" id="intervalNumber" type="number" value="1">
+        <input id="stepUp" type="button" value="+">
+        <select id="intervalType">
+          <option value="1">Days</option>
+          <option value="7">Weeks</option>
+          <option value="30">Months</option>
+        </select>
+      </div>
+      <div class="tabs__tab-content">
+        <h2>Pick a date</h2>
+        <input class="wide" id="futureDate" name="futureDate" type="text" placeholder="On a specific date">
+      </div>
+    </div>
+    <div id="inputs">
+      <input class="wide" id="title" name="title" type="text" placeholder="Page title">
+      <input class="wide" id="URL" name="URL" type="text" placeholder="URL to save">
+      <input class="wide" id="note" name="notes" type="text" placeholder="Notes">
+    </div>
+    <ul id="spookList"></ul>
+    <div class="spook" id="spookThis">Haunt Me</div>
+    <div id="status"></div>
+  </div>
+  <script src="moment.min.js"></script>
+  <script src="popup.js"></script>
+</body>
