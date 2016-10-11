@@ -28,7 +28,9 @@
     "idle",
     "tabs",
     "notifications",
-    "storage"
+    "storage",
+    "alarms",
+    "notifications"
   ],
   "omnibox": {
     "keyword": "extensionizr"
