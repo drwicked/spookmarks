@@ -21,7 +21,6 @@ chrome.alarms.onAlarm.addListener(function( alarm ) {
 					if (diff > 0) {
 						chrome.storage.sync.get(epochString, function(spookData){
 							try {
-								console.log(spookData);
 								if (spookData[epochString].seen != true) {
 									showNotification(spookData[epochString])
 								} else {
@@ -46,7 +45,6 @@ chrome.alarms.onAlarm.addListener(function( alarm ) {
 chrome.storage.sync.get('spookArray', function(arr){
 	try {
 		var checkArray = arr.spookArray;
-		console.log(arr);
 		checkArray.forEach(function(v,i){
 			console.log( ( v - new Date().valueOf() ) / 60000 + "min");
 		});
@@ -58,7 +56,7 @@ chrome.storage.sync.get('spookArray', function(arr){
 });
 
 function showNotification(notifyData) {
-	console.log("notify",notifyData)
+	console.log(":: Notification")
 	var daysAgo = Math.floor( (new Date().valueOf() - notifyData.createDate)/86400000 );
     chrome.notifications.create('spook', {
         type: 'basic',
@@ -74,7 +72,6 @@ function showNotification(notifyData) {
      }, function(notificationId) {});
      
      chrome.notifications.onButtonClicked.addListener(function(id,btnIndex){
-	     console.log(id,btnIndex)
 	     if (btnIndex === 0){
 		     // Visit URL
 		     chrome.tabs.create({url: notifyData.URL});
@@ -96,25 +93,22 @@ function putOff(notifyData){
 	chrome.storage.sync.get('spookArray', function(arr){
 		var array = arr.spookArray || currentSpookArray;
 		if (array.length>0){
-			console.log("before",array);
-			
 			chrome.storage.sync.get(notifyData.futureDate+'', function(spook){
-				console.log(spook);
 				//Get index
 				var index = array.indexOf(notifyData.futureDate);
 				//Add a day in milliseconds
 				var newFutureDate = notifyData.futureDate + 86400000;
 				//Replace index with new date
 				array[index] = newFutureDate;
-				
 				//array.splice(index, 1);
 				var arrayWithoutKey = removeKeyFromArray(notifyData.futureDate,array);
-				console.log("after",array,arrayWithoutKey);
 				// set new spook
-				chrome.storage.sync.set({newFutureDate:spook}, function(){
+				var newObj = {};
+				newObj[newFutureDate] = spook;
+				chrome.storage.sync.set(newObj, function(){
 					// remove old spook
 					chrome.storage.sync.remove(notifyData.futureDate+'', function(){
-						console.log("removed")
+						console.log(":: Put off spook");
 					})
 				})
 
@@ -132,7 +126,6 @@ function modifySpook(timeKey,fieldToModify,newValue,cb){
 		if (spookArray.length>0){
 			var index = spookArray.indexOf(timeKey);
 			chrome.storage.sync.get(timeKey+'', function(spook){
-				console.log("before",spook);
 				var spookObj = spook[timeKey];
 				spookObj[fieldToModify] = newValue;
 				var saveObj = {};
