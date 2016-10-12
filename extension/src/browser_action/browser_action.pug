@@ -1,11 +1,11 @@
 doctype html
 head
-	link(rel="stylesheet" href="popup.css")
+	link(rel="stylesheet" href="/css/popup.css")
 
 body
 	#mainPopup
 		#topTable
-			img#topIcon.cmn-t-pulse(src="../../icons/icon48.png" height=26)
+			img#topIcon.cmn-t-pulse(src="/icons/icon48.png" height=26)
 			table.wrap
 				tr
 					td
@@ -23,7 +23,7 @@ body
 							option(value="months") months
 		#accordion.b-accordion
 			.b-accordion__title
-					img#editIcon.icon.titleClick(src="../../icons/pencil.png" height="28")
+					img#editIcon.icon.titleClick(src="/icons/pencil.png" height="28")
 					span#editLink.wrap.titleClick Edit
 			.b-accordion__content
 				#inputs
@@ -32,7 +32,7 @@ body
 					input.wide#note(name="notes" type="text" placeholder="Notes")
 				input.wide#when(name="when" type="hidden" placeholder="In a week")
 			.b-accordion__title
-				img#calIcon.icon.titleClick(src="../../icons/calendar-icon.png" height="28")
+				img#calIcon.icon.titleClick(src="/icons/calendar-icon.png" height="28")
 				span#humanDate.titleClick On a particular date
 			.b-accordion__content
 				#calWrap
@@ -40,7 +40,7 @@ body
 			.debugHide
 				input.wide#futureDate(name="futureDate" type="text" placeholder="On a specific date")
 			.b-accordion__title.etherTitle
-				img#ellipsisIcon.icon.titleClick(src="../../icons/ellipsis.png" width="28px")
+				img#ellipsisIcon.icon.titleClick(src="/icons/ellipsis.png" width="28px")
 				span.titleClick List Spookmarks
 			.b-accordion__content
 				#prefs.debugHide
@@ -50,10 +50,10 @@ body
 					tbody#spookList
 			#status
 			.wideWrap
-				img#buttonGhost(src="../../icons/icon19.png")
+				img#buttonGhost(src="/icons/icon19.png")
 				#spookThis.spook.wide Haunt Me
-	script(src="moment.min.js")
-	script(src="flatpickr.min.js")
-	script(src="popup.js")
+	script(src="/js/moment.min.js")
+	script(src="/js/flatpickr.min.js")
+	script(src="/js/popup.js")
 			
 			

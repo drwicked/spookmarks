@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <head>
-  <link rel="stylesheet" href="popup.css">
+  <link rel="stylesheet" href="/css/popup.css">
 </head>
 <body>
   <div id="mainPopup">
-    <div id="topTable"><img class="cmn-t-pulse" id="topIcon" src="../../icons/icon48.png" height="26">
+    <div id="topTable"><img class="cmn-t-pulse" id="topIcon" src="/icons/icon48.png" height="26">
       <table class="wrap">
         <tr>
           <td>
@@ -29,7 +29,7 @@
       </table>
     </div>
     <div class="b-accordion" id="accordion">
-      <div class="b-accordion__title"><img class="icon titleClick" id="editIcon" src="../../icons/pencil.png" height="28"><span class="wrap titleClick" id="editLink">Edit</span></div>
+      <div class="b-accordion__title"><img class="icon titleClick" id="editIcon" src="/icons/pencil.png" height="28"><span class="wrap titleClick" id="editLink">Edit</span></div>
       <div class="b-accordion__content">
         <div id="inputs">
           <input class="wide" id="title" name="title" type="text" placeholder="Page title">
@@ -38,7 +38,7 @@
         </div>
         <input class="wide" id="when" name="when" type="hidden" placeholder="In a week">
       </div>
-      <div class="b-accordion__title"><img class="icon titleClick" id="calIcon" src="../../icons/calendar-icon.png" height="28"><span class="titleClick" id="humanDate">On a particular date</span></div>
+      <div class="b-accordion__title"><img class="icon titleClick" id="calIcon" src="/icons/calendar-icon.png" height="28"><span class="titleClick" id="humanDate">On a particular date</span></div>
       <div class="b-accordion__content">
         <div id="calWrap">
           <input id="datepicker" type="text">
@@ -47,7 +47,7 @@
       <div class="debugHide">
         <input class="wide" id="futureDate" name="futureDate" type="text" placeholder="On a specific date">
       </div>
-      <div class="b-accordion__title etherTitle"><img class="icon titleClick" id="ellipsisIcon" src="../../icons/ellipsis.png" width="28px"><span class="titleClick">List Spookmarks</span></div>
+      <div class="b-accordion__title etherTitle"><img class="icon titleClick" id="ellipsisIcon" src="/icons/ellipsis.png" width="28px"><span class="titleClick">List Spookmarks</span></div>
       <div class="b-accordion__content">
         <div class="debugHide" id="prefs"><button id="toggleAlarm">Activate alarm</button>
           <button id="clear">Clear</button>
@@ -57,12 +57,12 @@
         </table>
       </div>
       <div id="status"></div>
-      <div class="wideWrap"><img id="buttonGhost" src="../../icons/icon19.png">
+      <div class="wideWrap"><img id="buttonGhost" src="/icons/icon19.png">
         <div class="spook wide" id="spookThis">Haunt Me</div>
       </div>
     </div>
   </div>
-  <script src="moment.min.js"></script>
-  <script src="flatpickr.min.js"></script>
-  <script src="popup.js"></script>
+  <script src="/js/moment.min.js"></script>
+  <script src="/js/flatpickr.min.js"></script>
+  <script src="/js/popup.js"></script>
 </body>

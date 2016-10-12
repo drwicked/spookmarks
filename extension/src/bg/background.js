@@ -11,29 +11,35 @@ chrome.alarms.onAlarm.addListener(function( alarm ) {
 		chrome.storage.sync.get('spookArray', function(arr){
 			var checkArray = arr.spookArray || [];
 			currentSpookArray = checkArray;
-			checkArray.forEach(function(v,i){
-				var diff = ( v - new Date().valueOf() );
-				console.log(diff);
+			checkArray.forEach(function(epochInt,i){
+				var diff = ( epochInt - new Date().valueOf() );
+				var epochString = epochInt.toString();
+				
+				//console.log(diff);
 				// If spook in next 5 minutes
 				if (diff < 300000) {
 					if (diff > 0) {
-						chrome.storage.sync.get(v+'', function(spookData){
+						chrome.storage.sync.get(epochString, function(spookData){
 							try {
-								console.log("spook soon",spookData[v])
-								showNotification(spookData[v+''])
+								console.log(spookData);
+								if (spookData[epochString].seen != true) {
+									showNotification(spookData[epochString])
+								} else {
+									console.log(":: Spook seen");
+								}
 							} catch (err){
 								console.log(err);
 							}
 							
 						})
 					} else {
-						console.log("past",v);
+						
 					}
 				}
 			});
 		});
 	}
-	console.log("Got an alarm!", alarm);
+	console.log(":: Tick");
 });
 
 
@@ -45,7 +51,7 @@ chrome.storage.sync.get('spookArray', function(arr){
 			console.log( ( v - new Date().valueOf() ) / 60000 + "min");
 		});
 		chrome.alarms.create("tick", {delayInMinutes: 1, periodInMinutes: 1});
-		console.log("tick started")
+		console.log(":: Tick started")
 	} catch(err){
 		console.log(":: No spooks saved.")
 	}
@@ -56,9 +62,9 @@ function showNotification(notifyData) {
 	var daysAgo = Math.floor( (new Date().valueOf() - notifyData.createDate)/86400000 );
     chrome.notifications.create('spook', {
         type: 'basic',
-        iconUrl: '../../icons/icon128.png',
+        iconUrl: '/icons/icon128.png',
         title: notifyData.title,
-        message: notifyData.notes || '',
+        message: notifyData.note || '',
         contextMessage: "Saved "+daysAgo+" days ago.",
         buttons: [{
             title: "Visit link at "+ domainFromUrl(notifyData.URL)
@@ -72,6 +78,12 @@ function showNotification(notifyData) {
 	     if (btnIndex === 0){
 		     // Visit URL
 		     chrome.tabs.create({url: notifyData.URL});
+		     modifySpook(notifyData.futureDate,"seen",true,function(){
+			 	var poppedArray = removeKeyFromArray(notifyData.futureDate,currentSpookArray) || currentSpookArray;
+			 	chrome.storage.sync.set({"spookArray":poppedArray}, function(){
+			 		console.log(":: Removed from spookarray");
+				})
+			 });
 	     } else {
 		     putOff(notifyData);
 	     }
@@ -104,6 +116,30 @@ function putOff(notifyData){
 					chrome.storage.sync.remove(notifyData.futureDate+'', function(){
 						console.log("removed")
 					})
+				})
+
+				
+			})
+			
+			
+		}
+	});
+}
+
+function modifySpook(timeKey,fieldToModify,newValue,cb){
+	chrome.storage.sync.get('spookArray', function(arr){
+		var spookArray = arr.spookArray || currentSpookArray;
+		if (spookArray.length>0){
+			var index = spookArray.indexOf(timeKey);
+			chrome.storage.sync.get(timeKey+'', function(spook){
+				console.log("before",spook);
+				var spookObj = spook[timeKey];
+				spookObj[fieldToModify] = newValue;
+				var saveObj = {};
+				saveObj[timeKey.toString()] = spookObj;
+				chrome.storage.sync.set(saveObj, function(){
+					console.log(":: modified spook. "+timeKey+"'s value for "+fieldToModify+" is now "+newValue);
+					cb();
 				})
 
 				

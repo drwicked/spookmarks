@@ -1,0 +1,30 @@
+doctype html
+html
+	head
+		meta(charset='utf-8')
+		title#title
+		link#favicon(rel='icon', href='')
+		link(rel='stylesheet', href='lib/default.css', media='screen')
+		link(rel='stylesheet', href='css/main.css', media='screen')
+		link(rel='stylesheet', href='css/setting.css', media='screen')
+		link(rel='stylesheet', href='custom.css', media='screen')
+		script(src='lib/mootools-core.js')
+		script(src='lib/store.js')
+		script(src='js/classes/tab.js')
+		script(src='js/classes/setting.js')
+		script(src='js/classes/search.js')
+		script(src='js/classes/fancy-settings.js')
+		script(src='i18n.js')
+		script(src='js/i18n.js')
+		script(src='manifest.js')
+		script(src='settings.js')
+	body.no-select
+		#sidebar.fancy
+			img#icon(src='', alt='')
+			h1#settings-label
+			#tab-container
+				#search-container.tab
+					input#search(type='search', placeholder='')
+		#content
+			#search-result-container.tab-content
+				h2#search-label

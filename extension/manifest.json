@@ -1,7 +1,7 @@
 {
   "name": "Spookmarks: Bookmarks that come back.",
   "short_name": "Spookmarks",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "manifest_version": 2,
   "description": "Bookmarks that come back to haunt you.",
   "homepage_url": "http://spookmarks.com",
@@ -10,6 +10,7 @@
     "48": "icons/icon48.png",
     "128": "icons/icon128.png"
   },
+  "options_page": "src/options_custom/index.html",
   "default_locale": "en",
   "background": {
     "scripts": [
