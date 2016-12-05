@@ -109,11 +109,20 @@ box-sizing: border-box;
 	padding-left: 12px;
 	
 }
+.wrap {
+	width:100%;
+}
 #topIcon {
-	position: absolute;
-	left:12px;
-	top:8px;
 	transform: rotate(7deg);
+}
+#configIcon {
+	margin: 3px 4px 0px 2px;
+	opacity: 0.4;
+	transition: opacity 0.4s;
+	
+}
+#configIcon:hover {
+	opacity: 0.9;
 }
 .fade {
 	opacity: 0.5;
@@ -163,10 +172,21 @@ box-sizing: border-box;
 	text-align: center;
 	text-shadow:0px -1px 0px #2f6627;
 	margin-bottom: -2px;
-	width:251px;
+	width:100%;
+	max-width:251px;
 	
     transition: background 0.4s;
 }
+.spook:hover, .spook.hover {
+	background-color:$buttonhover;
+}
+.short {
+	
+	font-size:16px;
+	letter-spacing: 2px;
+	padding:0px;
+}
+
 #buttonGhost {
 	position: absolute;
 	right:14px;
@@ -175,9 +195,6 @@ box-sizing: border-box;
 }
 #status {
 	text-align: center;
-}
-.spook:hover {
-	background-color:$buttonhover;
 }
 .spook:active {
 	position:relative;
@@ -197,7 +214,7 @@ body {
     padding: 0
 }
 
-#intervalNumber {
+#intervalNumber, .intervalNumber {
 	position: absolute;
 	left:22px;
 	top:-2px;
@@ -253,7 +270,7 @@ button.btn {
   z-index: 0;
 }
 
-#intervalInput {
+#intervalInput, .intervalInput {
 	height: 36px;
 	width:90px;
 	overflow: hidden;
@@ -262,18 +279,22 @@ button.btn {
 	
 }
 
-#stepUp {
+#stepUp, .stepUp {
 	position: absolute;
 	right:0px;
 	top:0px;
 	border-radius: 0px 50px 50px 0px;
 }
-#stepDown {
+#stepDown, .stepDown {
 	position: absolute;
 	left:0px;
 	top:0px;
 	border-radius: 50px 0px 0px 50px;
 	
+}
+
+#config {
+	border-bottom: 8px solid $highlight;
 }
 
 button.btn:hover,
@@ -341,6 +362,12 @@ td {
 	right:-36px;
 	top:4px;
 }
+.iconPad {
+	text-align: center;
+	vertical-align: middle;
+	padding: 0px auto;
+	width:32px;
+}
 .etherTitle {
 	padding:.3em .5em;
 }
@@ -361,7 +388,7 @@ td {
     line-height: 1.5;
 }
 .debugHide {
-	display:none;
+ 	display:none;
 }
 dd, dt {
 	display:inline;
@@ -703,3 +730,57 @@ span.flatpickr-weekday {
         padding: 0
     }
 }
+.lbl {
+  position: relative;
+  display: block;
+  height: 20px;
+  width: 44px;
+  background: #898989;
+  border-radius: 100px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.lbl:after {
+  position: absolute;
+  left: -2px;
+  top: -3px;
+  display: block;
+  width: 26px;
+  height: 26px;
+  border-radius: 100px;
+  background: #bbb;
+  box-shadow: 0px 3px 3px rgba(0,0,0,0.05);
+  content: '';
+  transition: all 0.3s ease;
+}
+
+.lbl:active:after { transform: scale(1.15, 0.85); }
+
+.cbx:checked ~ label { background: $darkblue; }
+
+.cbx:checked ~ label:after {
+  left: 20px;
+  background: $lightblue;
+}
+
+.cbx:disabled ~ label {
+  background: #d5d5d5;
+  pointer-events: none;
+}
+
+.cbx:disabled ~ label:after { background: #bcbdbc; }
+
+
+.switchRow {
+    height: 42px;
+    background-color: $ghost;
+}
+.switchWrap {
+    float:right;
+    margin-right:8px;
+}
+
+.demo { margin-bottom: 40px; }
+
+.hidden { display: none; }

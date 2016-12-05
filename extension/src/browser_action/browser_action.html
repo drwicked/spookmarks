@@ -4,14 +4,15 @@
 </head>
 <body>
   <div id="mainPopup">
-    <div id="topTable"><img class="cmn-t-pulse" id="topIcon" src="/icons/icon48.png" height="26">
+    <div id="topTable">
       <table class="wrap">
         <tr>
+          <td class="iconPad"><img class="cmn-t-pulse" id="topIcon" src="/icons/icon48.png" height="26"></td>
           <td>
             <div id="intervalInput">
               <button class="btn left" id="stepDown">-</button>
               <div class="blue">
-                <input class="num" id="intervalNumber" type="number" value="1">
+                <input class="num" id="intervalNumber" type="number">
               </div>
               <button class="btn right" id="stepUp">+</button>
             </div>
@@ -25,10 +26,56 @@
               <option value="months">months</option>
             </select>
           </td>
+          <td class="iconPad"><img id="configIcon" src="/icons/config.png" height="22"></td>
         </tr>
       </table>
     </div>
     <div class="b-accordion" id="accordion">
+      <div class="b-accordion__content" id="config">
+        <div class="spook wide" id="loginButton">Login</div>
+        <table class="wrap">
+          <tr>
+            <td>Put Off Default							</td>
+            <td>
+              <div class="intervalInput">
+                <button class="btn left stepDown" id="putOffStepDown">-</button>
+                <div class="blue">
+                  <input class="num intervalNumber" id="putOffIntervalNumber" type="number">
+                </div>
+                <button class="btn right stepUp" id="putOffStepUp">+</button>
+              </div>
+            </td>
+            <td>
+              <select class="intervalType" id="putOffIntervalType">
+                <option value="minutes">minutes</option>
+                <option value="hours">hours</option>
+                <option value="days">days</option>
+                <option value="weeks">weeks</option>
+                <option value="months">months</option>
+              </select>
+            </td>
+          </tr>
+          <tr class="switchRow">
+            <td colspan="2">Close Tab on Spook</td>
+            <td>
+              <div class="switchWrap">
+                <input class="hidden cbx" id="closeTabSwitch" name="closeTabSwitch" type="checkbox" checked>
+                <label class="lbl" for="closeTabSwitch"></label>
+              </div>
+            </td>
+          </tr>
+        </table>
+        <table class="wrap">
+          <tr>
+            <td class="loggedIn">
+              <div class="spook short" id="sync">Sync</div>
+            </td>
+            <td>
+              <div class="spook short" id="clear">Reset</div>
+            </td>
+          </tr>
+        </table>
+      </div>
       <div class="b-accordion__title"><img class="icon titleClick" id="editIcon" src="/icons/pencil.png" height="28"><span class="wrap titleClick" id="editLink">Edit</span></div>
       <div class="b-accordion__content">
         <div id="inputs">
@@ -46,12 +93,12 @@
       </div>
       <div class="debugHide">
         <input class="wide" id="futureDate" name="futureDate" type="text" placeholder="On a specific date">
+        <input class="wide" id="userID" name="userID" type="text">
+        <input class="wide" id="rev" name="uniqueID" type="text"><span class="wide">
+          <input id="doSync" type="checkbox"></span>
       </div>
-      <div class="b-accordion__title etherTitle"><img class="icon titleClick" id="ellipsisIcon" src="/icons/ellipsis.png" width="28px"><span class="titleClick">List Spookmarks</span></div>
+      <div class="b-accordion__title etherTitle"><img class="icon titleClick" id="ellipsisIcon" src="/icons/ellipsis.png" width="28px"><span class="titleClick" id="listButton">List Spookmarks</span></div>
       <div class="b-accordion__content">
-        <div class="debugHide" id="prefs"><button id="toggleAlarm">Activate alarm</button>
-          <button id="clear">Clear</button>
-        </div>
         <table>
           <tbody id="spookList"></tbody>
         </table>
@@ -62,7 +109,12 @@
       </div>
     </div>
   </div>
+  <script src="../env.js"></script>
+  <script src="../vendor/lock.min.js"></script>
+  <script src="./lib/jwt-decode.min.js"></script>
+  <script src="./lib/AuthService.js"></script>
   <script src="/js/moment.min.js"></script>
   <script src="/js/flatpickr.min.js"></script>
+  <script src="/js/shared.js"></script>
   <script src="/js/popup.js"></script>
 </body>

@@ -1,0 +1,17 @@
+{
+  "name": "spookmarkschrome",
+  "version": "0.0.6",
+  "description": "Bookmarks that come back to haunt you.",
+  "main": "index.js",
+  "scripts": {
+    "test": "jshint **/**.js",
+    "zip": "echo 'Zip with version number:' && node -p -e \"require('./manifest.json').version\" && read -p 'Press enter to being zipping.' && zip -r ../spookmarks$(node -p -e \"require('./manifest.json').version\").zip ./ -x '*.DS_Store'"
+  },
+  "keywords": [
+    "bookmarks",
+    "chrome",
+    "extension"
+  ],
+  "author": "Dr. Wicked",
+  "license": "ISC"
+}

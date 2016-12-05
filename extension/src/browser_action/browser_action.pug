@@ -5,14 +5,15 @@ head
 body
 	#mainPopup
 		#topTable
-			img#topIcon.cmn-t-pulse(src="/icons/icon48.png" height=26)
 			table.wrap
 				tr
+					td.iconPad
+						img#topIcon.cmn-t-pulse(src="/icons/icon48.png" height=26)
 					td
 						#intervalInput
 							button.btn.left#stepDown -
 							.blue
-								input.num#intervalNumber(type="number" value=1)
+								input.num#intervalNumber(type="number")
 							button.btn.right#stepUp +
 					td
 						select#intervalType
@@ -21,7 +22,39 @@ body
 							option(value="days") days
 							option(value="weeks") weeks
 							option(value="months") months
+					td.iconPad
+						img#configIcon(src="/icons/config.png" height="22")
 		#accordion.b-accordion
+			#config.b-accordion__content
+				#loginButton.spook.wide Login
+				table.wrap
+					tr
+						td Put Off Default							
+						td
+							.intervalInput
+								button.btn.left#putOffStepDown.stepDown -
+								.blue
+									input.num#putOffIntervalNumber.intervalNumber(type="number")
+								button.btn.right#putOffStepUp.stepUp +
+						td
+							select#putOffIntervalType.intervalType
+								option(value="minutes") minutes
+								option(value="hours") hours
+								option(value="days") days
+								option(value="weeks") weeks
+								option(value="months") months
+					tr.switchRow
+						td(colspan=2) Close Tab on Spook
+						td
+							.switchWrap
+								input#closeTabSwitch.hidden.cbx(name='closeTabSwitch' type='checkbox' checked=true)
+								label.lbl(for='closeTabSwitch')
+				table.wrap
+					tr
+						td.loggedIn
+							#sync.spook.short Sync
+						td
+							#clear.spook.short Reset
 			.b-accordion__title
 					img#editIcon.icon.titleClick(src="/icons/pencil.png" height="28")
 					span#editLink.wrap.titleClick Edit
@@ -39,21 +72,27 @@ body
 					input#datepicker(type="text")
 			.debugHide
 				input.wide#futureDate(name="futureDate" type="text" placeholder="On a specific date")
+				input.wide#userID(name="userID" type="text")
+				input.wide#rev(name="uniqueID" type="text")
+				span.wide
+					input#doSync(type="checkbox")
 			.b-accordion__title.etherTitle
 				img#ellipsisIcon.icon.titleClick(src="/icons/ellipsis.png" width="28px")
-				span.titleClick List Spookmarks
+				span#listButton.titleClick List Spookmarks
 			.b-accordion__content
-				#prefs.debugHide
-					<button id="toggleAlarm">Activate alarm</button>
-					button#clear Clear
 				table
 					tbody#spookList
 			#status
 			.wideWrap
 				img#buttonGhost(src="/icons/icon19.png")
 				#spookThis.spook.wide Haunt Me
+	script(src='../env.js')
+	script(src='../vendor/lock.min.js')
+	script(src='./lib/jwt-decode.min.js')
+	script(src='./lib/AuthService.js')
 	script(src="/js/moment.min.js")
 	script(src="/js/flatpickr.min.js")
+	script(src="/js/shared.js")
 	script(src="/js/popup.js")
 			
 			

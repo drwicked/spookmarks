@@ -1,38 +1,181 @@
 
 
-var spooking = false;
+var spooking = false, shouldClose = true;
+
+const authService = new AuthService(env.AUTH0_DOMAIN, env.AUTH0_CLIENT_ID);
+
+// Minimal jQuery
+const $$ = document.querySelectorAll.bind(document);
+const $  = document.querySelector.bind(document);
+
+var user = {},sync = false;
+function loggedInView() {
+	authService.getProfile(function(err, profile) {
+		if (err) {
+			console.log(":: Authentication error",err);
+			chrome.storage.sync.get('profile',function(p){
+				user = JSON.parse(p);
+			});
+		} else {
+			console.log(":: "+ profile.user_id + " is logged in");
+			chrome.storage.sync.set({
+				"profile": JSON.stringify(profile)
+			});
+			user = profile;
+		}
+		chrome.storage.sync.get('userid', function(theId) {
+			if (Object.keys(theId).length === 0 && theId.constructor === Object) {
+				console.log(":: userid not found: " + theId);
+				chrome.storage.sync.set({
+					"userid": user.user_id
+				}, function() {
+					console.log(":: userid saved");
+					user.userID = user.userid
+				});
+			} else {
+				user.userID = theId.userid;
+			}
+			document.getElementById('userID').value = user.userID;
+			
+			chrome.storage.sync.get('rev', function(rev) {
+				if (Object.keys(rev).length === 0 && rev.constructor === Object) {
+					console.log("No revision data stored. " +user.userID);
+					registerUser(user.userID, function(thenData) {
+						chrome.storage.sync.set({
+							"rev": thenData
+						}, function() {
+							document.getElementById("rev").value = thenData;
+							console.log(":: New User Saved", thenData);
+						});
+					})
+				} else {
+					console.log(":: Syncing enabled");
+					document.getElementById('rev').value = rev.rev;
+					document.getElementById("doSync").checked = 'checked';
+					user.rev = rev.rev;
+					user.sync = true;
+				}
+			})
+			
+		});
+
+		$('#loginButton').innerHTML = "Logged In: " + user.nickname;
+		$('#loginButton').addEventListener('mouseover', function() {
+			$('#loginButton').innerHTML = "Log Out?";
+		});
+		$('#loginButton').addEventListener('mouseout', function() {
+			$('#loginButton').innerHTML = "Logged In: " + user.nickname;
+		});
+		$('#loginButton').addEventListener('click', function() {
+			authService.logout();
+			window.close();
+		});
+	});
+}
+
+
+function defaultView(){
+	$('.loggedIn').style.display = "none";
+	$('#loginButton').addEventListener('click', function(){
+		authService.show({
+			theme: {
+			logo: '/icons/icon128.png',
+			primaryColor: "green"
+			}
+		},function(){
+			$('#loginButton').innerHTML = "Logging In";
+			setTimeout(function(){
+				window.close();
+			}, 1500)
+		});
+	});
+}
+
 document.addEventListener('DOMContentLoaded', function () {
 	document.getElementById("spookThis").addEventListener("click", function(){
-		var sp = spook();
-		if (sp === false){
-			console.log("nope")
-		} else {
-			console.log("spooked" + sp);
-			if (spooking !== true){
-				saveSpook(sp);
-				
+		checkSpook(function(sp){
+			if (sp === false){
+				status("Something went wrong")
+			} else {
+				if (spooking !== true){
+					addSpook(sp,function(){
+						if (shouldClose) {
+							chrome.tabs.query({active : true, currentWindow: true}, function (tabs) {
+							    chrome.tabs.remove(tabs[0].id, function() { 
+									console.log(":: Spooked and closed", sp);
+								});
+							});
+						} else {
+							console.log(":: Spooked", sp);
+						}
+					});
+				}
 			}
-		}
+		});
 	})
+
+
+	
+	document.getElementById('configIcon').addEventListener("click", function(){
+		var configPanel = document.getElementById('config');
+		configPanel.style.display = (configPanel.style.display !== "none") ? "none" : "";
+		
+	})
+	
 	document.getElementById("clear").addEventListener("click", function(){
-		chrome.storage.sync.clear(function(){
-			console.log("cleared")
+		document.getElementById("clear").innerHTML = "Are you sure?";
+		document.getElementById("clear").addEventListener("click", function(){
+			chrome.storage.sync.clear(function(){
+				localStorage.clear();
+				console.log("cleared")
+				window.close();
+			})
 		})
+	})
+	document.getElementById("sync").addEventListener("click", function(){
+		downsync(user.userID,function(stat,spooks){
+			console.log(":: Button sync "+stat);
+			if (spooks !== false){
+				buildSpookList(spooks,function(unseenCount){
+					updateUnseen(unseenCount,spooks.length);
+					
+				});
+			}
+		});
 	})
 	document.getElementById("stepUp").addEventListener("click", function(){
 		document.getElementById("intervalNumber").stepUp();
 		setFutureDate();
 	})
-	document.getElementById("intervalType").addEventListener("change", function(e){
-		setFutureDate();
-		
-	})
-	
 	document.getElementById("stepDown").addEventListener("click", function(){
 		if (document.getElementById("intervalNumber").value > 1){
 			document.getElementById("intervalNumber").stepDown();
 			setFutureDate();
 		}
+	})
+	document.getElementById("intervalType").addEventListener("change", function(e){
+		setFutureDate();
+	})
+	
+	document.getElementById("putOffStepUp").addEventListener("click", function(){
+		document.getElementById("putOffIntervalNumber").stepUp();
+		saveSettings();
+	})
+	document.getElementById("putOffStepDown").addEventListener("click", function(){
+		if (document.getElementById("putOffIntervalNumber").value > 1){
+			document.getElementById("putOffIntervalNumber").stepDown();
+			saveSettings();
+		}
+	})
+	
+	document.getElementById("putOffIntervalType").addEventListener("change", function(e){
+		saveSettings();
+	})
+	document.getElementById("putOffIntervalNumber").addEventListener("change", function(e){
+		saveSettings();
+	})
+	document.getElementById("closeTabSwitch").addEventListener("change", function(e){
+		saveSettings();
 	})
 	try {
 		//var bg = chrome.extension.getBackgroundPage();
@@ -56,41 +199,49 @@ document.addEventListener('DOMContentLoaded', function () {
 	    contentClass: "b-accordion__content",
 	});
 	document.getElementById("title").addEventListener("keyup", function(e){
-		console.log(e.target.value,"bleh")
 		document.getElementById("editLink").innerHTML = trunc(e.target.value, 64);
 	})
-	document.getElementById('toggleAlarm').addEventListener('click', doToggleAlarm);
-	checkAlarm();
-	//notifyMe();
-
-	chrome.storage.sync.get('spookArray', function(array) {
-		console.log("spook",array.spookArray);
-		spookArray = array.spookArray;
+	if(authService.isLoggedIn()){
+		loggedInView();
+	}else{
+		defaultView();
+	}
+	
+	chrome.storage.sync.get('settings', function(settingsObj) {
+		if (typeof settingsObj.settings == "undefined") {
+			settingsObj = defaultSettings;
+			console.log(":: Initialized from popup, only happens after reset");
+		} else {
+			console.log(":: Spookmarks loaded successfully");
+		}
+		populateInputs(settingsObj);
+		populateData(settingsObj);
 	});
 
 	initPicker();
-	initList();
+	
+	
 });
 
-var spookArray = [];
+var sync;
 
 function status(msg){
 	document.getElementById("status").innerHTML = msg;
 }
 
-function spook(){
+function checkSpook(returnSpook){
 	var spook = {}
 	spook.URL = document.getElementById('URL').value;
 	spook.title = document.getElementById('title').value;
-	spook.createDate = moment().unix()*1000;
+	spook.seen = false;
+	spook.createDate = Date.now();
 	spook.futureDate = parseInt(document.getElementById('futureDate').value);
 	if (spook.futureDate.length == 0 ) {
-		console.log("barf");
 		status("No date set")
-		return false;
+		returnSpook(false);
 	}
 	spook.note = document.getElementById('note').value;
-	return spook;
+	returnSpook(spook);
 }
 var picker;
 function initPicker(date){
@@ -99,12 +250,19 @@ function initPicker(date){
 		"minDate": "today",
 		"enableTime": true,
 		onChange: function(dateObj, dateStr, instance) {
-			var unixTime = moment(dateStr).unix()*1000;
-			document.getElementById("futureDate").value = unixTime;
-			setFutureDate(moment(dateStr));
+			//var unixTime = unixTime();//moment(dateStr).unix()*1000;
+			//document.getElementById("futureDate").value = unixTime(dateStr);
+			setFutureDate(moment(dateStr),false);
 		},
 
 	});
+}
+function unixTime(t){
+	if (!!t){
+		return (new Date(t)).getTime()
+	} else {
+		return Date.now();
+	}
 }
 
 function trunc(str, length, ending) {  
@@ -131,64 +289,118 @@ function shorten(str){
 	} else if (str.indexOf('an hour') > -1) {
 	    str = str.replace('an hour','1h');
 	}
-	console.log('shorten',str);
 	return str;
 }
-function initList() {
-	var storedIntervalType = 'days', storedInterval = '1';
+
+function addSpookRow(itemObj){
+	var future = ( itemObj.futureDate - new Date().valueOf() ) > 0;
+    var row = document.createElement('tr');
+	
+    var timestr, str = moment(itemObj.futureDate).fromNow(true);
+    var rowClass = future;
+    str = shorten(str);
+    if (future){
+		timeStr = str;
+	    row.classList.add('future');
+    } else {
+	    timeStr = '-'+str;
+    		row.classList.add('past');
+    }
+    
+    if (itemObj.seen === true){
+	    row.classList.add('seen');
+    }
+    
+    var rowHtml = '<td class="tdTitle"><a class="spookLink" href="'+itemObj.URL+'">'+trunc(itemObj.title,42)+'</a></td><td class="tdTime">'+timeStr+'</td><td id="'+itemObj.futureDate+'" data-createDate="'+itemObj.createDate+'" class="tdDelete">x</td>';
+    row.innerHTML = rowHtml;
+    
+    document.getElementById("spookList").appendChild(row);
+    
+}
+
+function populateData() {
+	var unseen = [],unseenCount=0,totalCount = 0;
+	user.unseen = [];
 	
 	chrome.storage.sync.get(null, function(items) {
 	    var allKeys = Object.keys(items);
-		console.log(allKeys);
+	    // Iterating all keys for now, there might be a better way
 	    allKeys.forEach(function(v,i){
-		    var itemObj = items[v];
+		    var itemObj = items[v][v] || items[v];
 		    if (!!itemObj.title){
-			    var future = ( itemObj.futureDate - new Date().valueOf() ) > 0;
-			    var row = document.createElement('tr');
-
-			    var timestr, str = moment(itemObj.futureDate).fromNow(true);
-			    var rowClass = future;
-			    str = shorten(str);
-			    console.log("make row");
-			    if (future){
-				    timeStr = str;
-				    row.classList.add('future');
-			    } else {
-				    timeStr = '-'+str;
-			    		row.classList.add('past');
+				console.log(":: Loaded direct");
+			    if (itemObj.seen !== true){
+				   unseenCount++
 			    }
+			    totalCount++
+			    addSpookRow(itemObj);
+			} else if (v == "spooks") {
+				var spookArr = JSON.parse(itemObj);
+				buildSpookList(spookArr,function(unseenCount){
+					console.log("unseen",unseenCount);
+					updateUnseen(unseenCount,spookArr.length);
+				});
+		    } else if (v == "settings") {
+			    var s = items[v];
+			    populateInputs(s);
+		    } else if (v == "userid") {
 			    
-			    if (itemObj.seen === true){
-				    row.classList.add('seen');
-			    }
-			    
-			    var rowHtml = '<td class="tdTitle"><a class="spookLink" href="'+itemObj.URL+'">'+trunc(itemObj.title,42)+'</a></td><td class="tdTime">'+timeStr+'</td><td id="'+itemObj.futureDate+'" data-futureDate="'+itemObj.futureDate+'" class="tdDelete">x</td>';
-			    row.innerHTML = rowHtml;
-			    
-			    document.getElementById("spookList").appendChild(row);
-			    
-		    } else if (v == "intervalType") {
-			    storedIntervalType = items[v];
-			    console.log("intType",storedIntervalType)
-			    document.getElementById("intervalType").value = storedIntervalType;
-		    } else if (v == "interval") {
-			    storedInterval = items[v];
-			    console.log("int",storedInterval)
-			    document.getElementById("intervalNumber").value = storedInterval;
+				document.getElementById("userID").value = items[v];
+		    } else if (v == "rev") {
+				document.getElementById("rev").value = items[v];
 		    }
 	    });
-	    setFutureDate();
+	    setFutureDate(null,false);
 	});
 }
-function setFutureDate(mDate){
-	var interval = document.getElementById("intervalNumber").value || 1;
-	var intervalType = document.getElementById("intervalType").value || 'days';
+
+function updateUnseen(count,total){
+	console.log(":: "+total+" saved, "+count+" unseen.");
+	chrome.extension.sendMessage({updateCount:count});
+    if (count > 0) {
+	    document.getElementById('listButton').innerHTML = ( (total>1) ? total + " Spookmarks : " + count + " unseen" :"1 Spookmark" );
+    }
+}
+
+function populateInputs(s){
+	document.getElementById("intervalType").value = s.intervalType || 'days';
+	document.getElementById("intervalNumber").value = parseInt(s.interval) || 1;
+	document.getElementById("putOffIntervalType").value = s.putOffIntervalType || 'days';
+	document.getElementById("putOffIntervalNumber").value = parseInt(s.putOffIntervalNumber) || 1;
+	shouldClose = s.closeAfterSpooked;
+	document.getElementById("closeTabSwitch").checked =  shouldClose ? 'checked' : false;
+}
+
+function saveSettings(s) {
+	s = s || {};
+	var settingsObj = {};
+	var putOffVal = s.putOffIntervalNumber || $("#putOffIntervalNumber").value || 2;
+	var putOffType = s.putOffIntervalType || $("#putOffIntervalType").value || "minutes";
+	var intVal = s.intervalNumber || $("#intervalNumber").value;
+	var intType = s.intervalType || $("#intervalType").value;
+	var doSync = document.getElementById('doSync').checked;
+	var closeTabSwitch = document.getElementById('closeTabSwitch').checked;
 	
-	chrome.storage.sync.set({"intervalType":intervalType,"interval":interval}, function() {
-		console.log('success');
-		//initList();
+	
+	settingsObj["settings"] = {
+		"interval":intVal,
+		"intervalType":intType,
+		"putOffIntervalNumber":putOffVal,
+		"putOffIntervalType": putOffType,
+		"unseen": user.unseen || [],
+		"sync": doSync,
+		"closeAfterSpooked": closeTabSwitch,
+	}
+	//settings = settingsObj["settings"];
+	
+	chrome.storage.sync.set(settingsObj, function() {
+		console.log(':: Settings stored as object');
 	});
-	
+}
+
+function setFutureDate(mDate,save){
+	var interval = !!$("#intervalNumber").value ? $("#intervalNumber").value : defaultSettings.interval;
+	var intervalType = !!$("#intervalType").value ? $("#intervalType").value : defaultSettings.intervalType;
 	if (!!mDate){
 		var dayDiff = moment().diff(mDate,'days');
 		interval = Math.abs(dayDiff);
@@ -196,56 +408,117 @@ function setFutureDate(mDate){
 		intervalType = 'days';
 	}
 	var futureMoment = mDate || moment().add(interval,intervalType);
-	document.getElementById("spookThis").innerHTML = "Haunt Me In "+ interval +" "+intervalType;
-	document.getElementById("futureDate").value = futureMoment.unix()*1000;
+	var willCloseIndicator = shouldClose ? '<span id="willCloseIndicator">x</span>' : '';
+	document.getElementById("spookThis").innerHTML = "Haunt Me In "+ interval +" "+intervalType + " " + willCloseIndicator;
+	document.getElementById("futureDate").value = (futureMoment.unix()*1000) + Math.floor(Math.random() * 1000);
 	document.getElementById("humanDate").innerHTML = futureMoment.format('MMMM Do, YYYY h:mm a');
-	picker.setDate(futureMoment.format('YYYY-MM-DD HH:mm'))
+	if (save !== false){
+		picker.setDate(futureMoment.format('YYYY-MM-DD HH:mm'))
+		saveSettings();
+	}
 }
-function deleteSpook(el){
-	var toDelete = el.getAttribute('data-futureDate');
-	var index = spookArray.indexOf( parseInt(toDelete) );
-	spookArray.splice(index, 1);
-	var saveObj = {};
-	saveObj['spookArray'] = spookArray;
-	chrome.storage.sync.set(saveObj, function() {
-		chrome.storage.sync.remove(toDelete, function(){
-			el.parentNode.remove();
-			status("Spook removed");
-		})
-	});
-}
-function saveSpook(spookObj) {
-	spooking = true;
-	var storeObj = {};
-	var unixFuture = moment(spookObj.futureDate).unix()*1000;
-	storeObj[unixFuture] = spookObj;
-	fadeOut( document.getElementById("topIcon") );
-	chrome.storage.sync.get('spookArray', function(array) {
-		//console.log("get spooks",array);
-		var arr = [];
-		if(!!array.spookArray && array.spookArray.length > 0){
-			console.log("array updated",arr,array.spookArray);
-			arr = array.spookArray;
-		}
-		arr.push(unixFuture);
-		var saveObj = {};
-		saveObj['spookArray'] = arr;
-		chrome.storage.sync.set(saveObj, function() {
-			console.log(saveObj);
-			//status("Array updated");
-			chrome.storage.sync.set(storeObj, function() {
-				document.getElementById("spookThis").innerHTML = 'Spooked';
-				
-				fadeIn( document.getElementById("buttonGhost") );
-				setTimeout(function(){
-					window.close();
-					spooking = false;
-				}, 1500)
-			});
-		});
 
-	});
+
+function deleteSpook(el){
+	var toDelete = el.getAttribute('data-createDate');
+	newModify('createDate',toDelete,'delete',true,function(returnedArray){
+		upsync(user.userID,function(syncStat){
+			el.parentNode.remove();
+			console.log(":: Post delete update",syncStat);
+			status("Spook removed");
+		});
+	})
 }
+
+
+function addSpook(spookObj,back) {
+	spooking = true;
+	var unixFuture = spookObj.futureDate;
+	var storeSpook = {};
+	storeSpook[unixFuture] = spookObj;
+	fadeOut( document.getElementById("topIcon") );
+
+	chrome.storage.sync.get('spooks', function(data){
+		var spookArr = JSON.parse(data.spooks);
+		spookArr.push(spookObj);
+		chrome.storage.sync.set({'spooks':JSON.stringify(spookArr)}, function() {
+			console.log(":: Spook stored",spookObj);
+			if (user.sync === true) {
+				upsync(user.user_id,function(stat){
+					console.log(stat);
+					document.getElementById("spookThis").innerHTML = 'Spookmarks Synced';
+					
+				});
+			} else {
+				document.getElementById("spookThis").innerHTML = 'Spooked';
+			}
+			
+			//Update badge count instantly with message passing
+			countSpooks(spookArr,function(unseenCount,unseenArr){
+				chrome.extension.sendMessage({updateCount:unseenCount});
+			});
+			fadeIn( document.getElementById("buttonGhost") );
+			setTimeout(function(){
+				spooking = false;
+				back();
+				window.close();
+			}, 900)
+		});
+		
+	})
+}
+
+function buildSpookList(spookArr,unseen) {
+	var unseenCount = 0;
+	for(var i in spookArr){
+		sp = spookArr[i];
+		if (sp.seen !== true){
+			unseenCount = unseenCount + 1;
+		}
+		addSpookRow(sp);
+		if (i == spookArr.length-1){
+			unseen(unseenCount);	
+		}
+	}
+}
+
+function registerUser(userID, thenData){
+	userID = userID, document.getElementById("userID").value;
+	var request = new XMLHttpRequest();
+	request.open('GET', 'https://spookmarks.com/register/'+encodeURIComponent(userID), true);
+	request.onload = function() {
+		if (request.status >= 200 && request.status < 400) {
+			// Success!
+			console.log(":: Successfully registered " + userID);
+			var data = JSON.parse(request.responseText);
+			thenData(data.userData.rev)
+		} else {
+			// We reached our target server, but it returned an error
+			console.log("Errortown. Population this.",request.status);
+		}
+	};
+	
+	request.onerror = function(err) {
+		console.log("error",err);
+		// There was a connection error of some sort
+	};
+	
+	request.send();
+}
+
+function param(object) {
+    var encodedString = '';
+    for (var prop in object) {
+        if (object.hasOwnProperty(prop)) {
+            if (encodedString.length > 0) {
+                encodedString += '&';
+            }
+            encodedString += encodeURI(prop + '=' + object[prop]);
+        }
+    }
+    return encodedString;
+}
+
 function fadeOut(el){
   el.style.opacity = 1;
 
@@ -269,70 +542,6 @@ function fadeIn(el, display){
     }
   })();
 }
-function notifyMe() {
-	if (Notification.permission !== "granted")
-		Notification.requestPermission();
-	else {
-		var notification = new Notification('Notification title', {
-			icon: 'http://cdn.sstatic.net/stackexchange/img/logos/so/so-icon.png',
-			body: "Hey there! You've been notified!",
-		});
-	
-		notification.onclick = function () {
-			window.open("http://stackoverflow.com/a/13328397/1269037");      
-		};
-	}
-}
-
-
-// ALARMS
-var alarmName = 'remindme';
-function checkAlarm(callback) {
- chrome.alarms.getAll(function(alarms) {
-	 console.log("all alarms",alarms);
-   var hasAlarm = alarms.some(function(a) {
-     return a.name == alarmName;
-   });
-   var newLabel;
-   if (hasAlarm) {
-     newLabel = 'Cancel alarm';
-   } else {
-     newLabel = 'Activate alarm';
-   }
-   document.getElementById('toggleAlarm').innerText = newLabel;
-   if (callback) callback(hasAlarm);
- })
-}
-function createAlarm() {
- chrome.alarms.create("tick", {
-   delayInMinutes: 1, periodInMinutes: 1});
-}
-
-function createAlarmEpoch(unixTime,spookObj) {
-	var storeObj = {};
-	storeObj['alarm_'+unixTime] = spookObj;
-	chrome.storage.local.set(storeObj, function(done){
-		console.log("stored",storeObj);
-	});
-	chrome.alarms.create('alarm_'+unixTime, {
-		when: unixTime
-	});
-}
-
-function cancelAlarm() {
- chrome.alarms.clear(alarmName);
-}
-function doToggleAlarm() {
- checkAlarm( function(hasAlarm) {
-   if (hasAlarm) {
-     cancelAlarm();
-   } else {
-     createAlarm();
-   }
-   checkAlarm();
- });
-}
-
 
 Accordion = function(options) {
     var elem = document.getElementById(options.elem),
@@ -356,10 +565,11 @@ Accordion = function(options) {
 		        chrome.tabs.create({url: e.target.href});
 	        }
 	        return
-	    };
+	    } else {
+	        if (oneOpen) closeAll();
+	        toggle(e.target.parentNode.nextElementSibling);
+	    }
         
-        if (oneOpen) closeAll();
-        toggle(e.target.parentNode.nextElementSibling);
     }
     function closeAll() {
         [].forEach.call(elem.querySelectorAll("." + contentClass), function(item) {
@@ -380,3 +590,6 @@ Accordion = function(options) {
     this.open = open;
     this.close = close;
 }
+
+
+

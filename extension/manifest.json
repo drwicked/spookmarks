@@ -1,7 +1,7 @@
 {
   "name": "Spookmarks: Bookmarks that come back.",
   "short_name": "Spookmarks",
-  "version": "0.0.4",
+  "version": "0.1.2",
   "manifest_version": 2,
   "description": "Bookmarks that come back to haunt you.",
   "homepage_url": "http://spookmarks.com",
@@ -10,11 +10,12 @@
     "48": "icons/icon48.png",
     "128": "icons/icon128.png"
   },
-  "options_page": "src/options_custom/index.html",
   "default_locale": "en",
   "background": {
     "scripts": [
-      "src/bg/background.js"
+	    "js/moment.min.js",
+	    "js/shared.js",
+		"src/bg/background.js"
     ],
     "persistent": true
   },
@@ -23,11 +24,18 @@
     "default_title": "Spookmark this page",
     "default_popup": "src/browser_action/browser_action.html"
   },
+  "content_security_policy": "script-src 'self' https://*.auth0.com/; object-src 'self'",
+  "web_accessible_resources": [
+    "src/callback/*"
+  ],
   "permissions": [
+    "https://spookmarks.auth0.com/*",
     "idle",
     "tabs",
     "storage",
     "alarms",
-    "notifications"
+    "notifications",
+    "http://spookmarks.com/*",
+    "https://spookmarks.com/*"
   ]
 }
