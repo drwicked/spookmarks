@@ -1,11 +1,11 @@
 {
   "name": "spookmarkschrome",
-  "version": "0.0.6",
+  "version": "0.1.5",
   "description": "Bookmarks that come back to haunt you.",
   "main": "index.js",
   "scripts": {
     "test": "jshint **/**.js",
-    "zip": "echo 'Zip with version number:' && node -p -e \"require('./manifest.json').version\" && read -p 'Press enter to being zipping.' && zip -r ../spookmarks$(node -p -e \"require('./manifest.json').version\").zip ./ -x '*.DS_Store'"
+    "zip": "grunt && echo 'Zip with version number:' && node -p -e \"require('./manifest.json').version\" && read -p 'Press enter to being zipping.' && zip -r ../spookmarks$(node -p -e \"require('./manifest.json').version\").zip ./ -x '*.DS_Store' '/node_modules/*' && /usr/bin/open -a '/Applications/Google Chrome.app' 'https://chrome.google.com/webstore/developer/dashboard'"
   },
   "keywords": [
     "bookmarks",
@@ -13,5 +13,13 @@
     "extension"
   ],
   "author": "Dr. Wicked",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "grunt": "^1.0.1",
+    "grunt-bump": "^0.8.0",
+    "grunt-contrib-compress": "^1.3.0",
+    "grunt-contrib-uglify": "^2.0.0",
+    "grunt-open": "^0.2.3",
+    "grunt-sass": "^1.2.1"
+  }
 }
