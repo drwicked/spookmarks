@@ -1,6 +1,6 @@
 {
   "name": "spookmarkschrome",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "Bookmarks that come back to haunt you.",
   "main": "index.js",
   "scripts": {
