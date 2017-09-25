@@ -1,0 +1,21 @@
+{
+  "name": "spookserver",
+  "version": "1.0.0",
+  "description": "DB backend for spookmarks.com and mobile app",
+  "main": "app.js",
+  "scripts": {
+    "start": "nodemon app.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Dr. Wicked",
+  "license": "ISC",
+  "dependencies": {
+    "diet": "^0.10.8",
+    "diet-cookies": "^0.2.0",
+    "diet-pug": "git+https://github.com/drwicked/diet-pug.git",
+    "diet-static": "^2.2.0",
+    "lokijs": "^1.4.1",
+    "moment": "^2.15.2",
+    "shortid": "^2.2.6"
+  }
+}

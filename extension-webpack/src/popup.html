@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<body>
+  <div id="mainPopup">
+    <div id="topTable">
+      <table class="wrap">
+        <tr>
+          <td class="iconPad"><img class="cmn-t-pulse" id="topIcon" src="img/icon48.png" height="26"></td>
+          <td>
+            <div id="intervalInput">
+              <button class="btn left" id="stepDown">-</button>
+              <div class="blue">
+                <input class="num" id="intervalNumber" type="number">
+              </div>
+              <button class="btn right" id="stepUp">+</button>
+            </div>
+          </td>
+          <td>
+            <select id="intervalType">
+              <option value="minutes">minutes</option>
+              <option value="hours">hours</option>
+              <option value="days">days</option>
+              <option value="weeks">weeks</option>
+              <option value="months">months</option>
+            </select>
+          </td>
+          <td class="iconPad"><img id="configIcon" src="img/config.png" height="22"></td>
+        </tr>
+      </table>
+    </div>
+    <div class="accordion-interface" id="accordion-interface">
+      <div id="config" class="js-accordion-panel hide" role="tabpanel">
+        <div class="spook wide" id="loginButton">Login</div>
+        <table class="wrap">
+          <tr>
+            <td>Put Off Default</td>
+            <td>
+              <div class="intervalInput">
+                <button class="btn left stepDown" id="putOffStepDown">-</button>
+                <div class="blue">
+                  <input class="num intervalNumber" id="putOffIntervalNumber" type="number">
+                </div>
+                <button class="btn right stepUp" id="putOffStepUp">+</button>
+              </div>
+            </td>
+            <td>
+              <select class="intervalType" id="putOffIntervalType">
+                <option value="minutes">minutes</option>
+                <option value="hours">hours</option>
+                <option value="days">days</option>
+                <option value="weeks">weeks</option>
+                <option value="months">months</option>
+              </select>
+            </td>
+          </tr>
+          <tr class="switchRow">
+            <td colspan="2">Close Tab on Spook</td>
+            <td>
+              <div class="switchWrap">
+                <input class="hidden cbx" id="closeTabSwitch" name="closeTabSwitch" type="checkbox" checked>
+                <label class="lbl" for="closeTabSwitch"></label>
+              </div>
+            </td>
+          </tr>
+        </table>
+        <table class="wrap">
+          <tr>
+            <td class="loggedIn">
+              <div class="spook short" id="sync">Sync</div>
+            </td>
+            <td>
+              <div class="spook short" id="clear">Reset</div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div id="triggerDescription" class="js-accordion-trigger">
+        <img class="icon titleClick" id="editIcon" src="img/pencil.png" height="28" />
+        <span class="wrap titleClick" id="editLink">Edit</span>
+      </div>
+      <div id="description" class="js-accordion-panel hide" role="tabpanel">
+        <div id="inputs">
+          <input class="wide" id="title" name="title" type="text" placeholder="Page title">
+          <input class="wide" id="URL" name="URL" type="text" placeholder="URL to save">
+          <input class="wide" id="note" name="notes" type="text" placeholder="Notes">
+        </div>
+        <input class="wide" id="when" name="when" type="hidden" placeholder="In a week">
+      </div>
+      <div id="triggerCalendar" class="js-accordion-trigger">
+        <img class="icon titleClick" id="calIcon" src="img/calendar-icon.png" height="28" />
+        <span class="titleClick" id="humanDate">On a particular date</span>
+      </div>
+      <div id="calendar" class="js-accordion-panel hide" role="tabpanel">
+        <div id="calWrap">
+          <input id="datepicker" type="text">
+        </div>
+      </div>
+      <div class="debugHide">
+        <input class="wide" id="futureDate" name="futureDate" type="text" placeholder="On a specific date">
+        <input class="wide" id="userID" name="userID" type="text">
+        <input class="wide" id="rev" name="uniqueID" type="text"><span class="wide">
+          <input id="doSync" type="checkbox"></span>
+      </div>
+      <div id="triggerList" class="js-accordion-trigger etherTitle">
+        <img class="icon titleClick" id="ellipsisIcon" src="img/ellipsis.png" width="28px" />
+        <span class="titleClick" id="listButton">List Spookmarks</span>
+      </div>
+      <div id="listPanel" class="js-accordion-panel" role="tabpanel">
+        <table>
+          <tbody id="spookList"></tbody>
+        </table>
+      </div>
+      <div id="status"></div>
+      <div class="wideWrap"><img id="buttonGhost" src="img/icon19.png">
+        <div class="spook wide" id="spookThis">Haunt Me</div>
+      </div>
+    </div>
+  </div>
+</body>

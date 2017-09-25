@@ -1,0 +1,76 @@
+extends layout
+block content
+	link(href='/css/popup.css', rel='stylesheet')
+	.container
+		.row
+			form.form-horizontal(method="POST",action='/spook')
+				fieldset
+					.form-group
+						label.col-md-4.control-label(for='userId') User ID
+						.col-md-4
+							input#userID.form-control.input-md(name='userID', type='text', placeholder='unique')
+					
+					.form-group
+						label.col-md-4.control-label(for='URL') URL
+						.col-md-4
+							input#spookURL.form-control.input-md(name='URL', type='text', placeholder='http://spookedurl.com')
+							span.help-block Enter a URL
+					.form-group
+						label.col-md-4.control-label(for='title') Title
+						.col-md-4
+							input#spookTitle.form-control.input-md(name='title', type='text', placeholder='Site title')
+							span.help-block Title of the site
+					.form-group
+						label.col-md-4.control-label(for='notes') Description
+						.col-md-4
+							input#spookDescription.form-control.input-md(name='notes', type='text', placeholder='Notes about this spookmark')
+							span.help-block Not required
+					.form-group
+						.col-md-4
+						.col-md-4
+							#topTable(style="background-color:#303240")
+								img#topIcon.cmn-t-pulse(src="/icons/icon48.png" height=26)
+								table.wrap
+									tr
+										td
+											#intervalInput
+												button.btn.left#stepDown(type="button") -
+												.blue
+													input.num#intervalNumber(type="number" value=1)
+												button.btn.right#stepUp(type="button") +
+										td
+											select#intervalType
+												option(value="minutes") minutes
+												option(value="hours") hours
+												option(value="days") days
+												option(value="weeks") weeks
+												option(value="months") months
+					.form-group
+						.col-md-4
+						.col-md-4
+							input#datepicker(type="text")
+							input#futureDate(name="futureDate", type="text")
+					.form-group
+						label.col-md-4.control-label(for='spookSubmit')
+						.col-md-4
+							button#spookSubmit.btn.btn-lg.btn-primary Spook
+block footer
+	script(src="/js/moment.min.js")
+	script(src="/js/flatpickr.min.js")
+	script.
+		var picker;
+		function initPicker(date){
+			picker = document.getElementById("datepicker").flatpickr({
+				"inline": true,
+				"minDate": "today",
+				"enableTime": true,
+				onChange: function(dateObj, dateStr, instance) {
+					var rand = Math.floor(Math.random() * 1000);
+					var raw = (new Date(dateStr)).getTime() + rand;
+					document.getElementById("futureDate").value = raw;
+					console.log(raw,Date.now(),raw>Date.now());
+				},
+		
+			});
+		}
+		initPicker(Date.now())
